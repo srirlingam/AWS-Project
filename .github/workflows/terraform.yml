@@ -50,9 +50,9 @@ jobs:
       id: plan
       run: terraform plan -out=tfplan
 
-    # Terraform Apply (for push only, not for PR)
+    # Terraform Apply 
     - name: "Terraform Apply"
-      if: github.ref == 'refs/heads/main' && inputs.destroy == 'false'
+      if: inputs.destroy == 'false'
       working-directory: ${{ env.TF_ACTIONS_WORKING_DIR }}
       run: terraform apply -auto-approve tfplan
 
