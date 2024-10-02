@@ -9,19 +9,28 @@ data "aws_availability_zones" "available" {}
 # Public Subnet
 resource "aws_subnet" "public" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = var.public_subnet_cidr
+  cidr_block = "10.0.1.0/24"  # Example CIDR for public subnet
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[0]
   tags = merge(var.tags, { Name = "public-subnet" })
 }
 
-# Private Subnet
-resource "aws_subnet" "private" {
+# Private Subnet 1
+resource "aws_subnet" "private_1" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = var.private_subnet_cidr
-  availability_zone = data.aws_availability_zones.available.names[1]
-  tags = merge(var.tags, { Name = "private-subnet" })
+  cidr_block = "10.0.2.0/24"  # Example CIDR for private subnet 1
+  availability_zone = data.aws_availability_zones.available.names[0]
+  tags = merge(var.tags, { Name = "private-subnet-1" })
 }
+
+# Private Subnet 2
+resource "aws_subnet" "private_2" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.3.0/24"  # Example CIDR for private subnet 2
+  availability_zone = data.aws_availability_zones.available.names[1]
+  tags = merge(var.tags, { Name = "private-subnet-2" })
+}
+
 
 # Internet Gateway
 resource "aws_internet_gateway" "gw" {
@@ -98,11 +107,11 @@ resource "aws_security_group" "rds_sg" {
 
 # EC2 Instance
 resource "aws_instance" "web" {
-  ami             = var.ami_id
-  instance_type   = var.ec2_instance_type
-  subnet_id       = aws_subnet.public.id
-  security_groups = [aws_security_group.web_sg.name]
-  key_name        = "your-ssh-key"
+  ami                    = var.ami_id
+  instance_type          = var.ec2_instance_type
+  subnet_id              = aws_subnet.public.id
+  vpc_security_group_ids  = [aws_security_group.web_sg.id] 
+  key_name               = "aws-project"  
 
   tags = merge(var.tags, { Name = "web-server" })
 
@@ -116,13 +125,14 @@ resource "aws_instance" "web" {
             EOF
 }
 
+
 # RDS MySQL Instance
 resource "aws_db_instance" "rds" {
-  allocated_storage    = 20
+  allocated_storage    = 10
   engine               = "mysql"
-  engine_version       = "5.7"
+  engine_version       = "8.0"
   instance_class       = var.db_instance_class
-  db_name                 = var.db_name
+  db_name              = var.db_name
   username             = var.db_user
   password             = var.db_password
   publicly_accessible  = false
@@ -135,7 +145,7 @@ resource "aws_db_instance" "rds" {
 # DB Subnet Group
 resource "aws_db_subnet_group" "main" {
   name       = "main-db-subnet-group"
-  subnet_ids = [aws_subnet.private.id]
+  subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id] # Update to include both private subnets
 
   tags = merge(var.tags, { Name = "db-subnet-group" })
 }

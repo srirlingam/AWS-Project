@@ -40,12 +40,12 @@ variable "db_user" {
 
 variable "db_password" {
   description = "Database password"
-  default = "check@123$"
+  default = "check$123$"
 }
 
 variable "db_instance_class" {
   description = "RDS instance class"
-  default     = "db.t2.micro"
+  default     = "db.t3.micro"
 }
 
 variable "tags" {
