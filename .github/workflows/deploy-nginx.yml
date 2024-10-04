@@ -91,11 +91,29 @@ jobs:
             fi
 
             # Log in to ECR
-            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+            if [[ -z "$AWS_REGION" || -z "$AWS_ACCOUNT_ID" ]]; then
+                echo "AWS_REGION or AWS_ACCOUNT_ID is not set. Exiting."
+                exit 1
+            fi
+
+            # Ensure that the AWS CLI is configured
+            if ! command -v aws &> /dev/null; then
+                echo "AWS CLI is not installed. Exiting."
+                exit 1
+            fi
+
+            aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
 
             # Pull the latest Docker image
-            docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
+            IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest"
+            if [[ -z "$ECR_REPOSITORY" ]]; then
+                echo "ECR_REPOSITORY is not set. Exiting."
+                exit 1
+            fi
+
+            docker pull "$IMAGE_URI"
 
             # Run the container (replace the port and options as needed)
-            docker run -d -p 80:80 --name nginx-container $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
-          EOF
+            docker run -d -p 80:80 --name nginx-container "$IMAGE_URI"
+            EOF
+
