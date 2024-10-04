@@ -80,6 +80,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ec2-key.pem ec2-user@$EC2_PUBLIC_IP \
             AWS_REGION="${{ github.event.inputs.aws_region }}" \
             AWS_ACCOUNT_ID="${{ github.event.inputs.aws_account_id }}" \
+            ECR_REPOSITORY="${{ github.event.inputs.ecr_repository }}" \
             bash -s << 'EOF'
             # Install Docker if it's not installed
             if ! command -v docker &> /dev/null
