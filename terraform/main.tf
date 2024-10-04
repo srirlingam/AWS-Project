@@ -152,7 +152,7 @@ resource "aws_db_subnet_group" "main" {
 
 # ECR Registry
 resource "aws_ecr_repository" "main" {
-  name = "enterprise-app-ecr"
+  name = var.ecr_repo_name
   image_tag_mutability = "MUTABLE"
 
   tags = merge(var.tags, { Name = "enterprise-ecr" })

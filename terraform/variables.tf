@@ -48,6 +48,11 @@ variable "db_instance_class" {
   default     = "db.t3.micro"
 }
 
+variable "ecr_repo_name" {
+  description = "name of ecr repo"
+  default     = "nginx-repo"
+}
+
 variable "tags" {
   type = map(string)
   default = {
