@@ -103,19 +103,20 @@ jobs:
             fi
 
             # Log in to ECR
-            aws configure set aws_access_key_id "\$AWS_ACCESS_KEY_ID"
-            aws configure set aws_secret_access_key "\$AWS_SECRET_ACCESS_KEY"
-            aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "\$AWS_ACCOUNT_ID.dkr.ecr.\$AWS_REGION.amazonaws.com"
+            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            aws configure set default.region "$AWS_REGION"
+            aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
 
             # Pull the latest Docker image
-            IMAGE_URI="\$AWS_ACCOUNT_ID.dkr.ecr.\$AWS_REGION.amazonaws.com/\$ECR_REPOSITORY:latest"
-            if [[ -z "\$ECR_REPOSITORY" ]]; then
+            IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest"
+            if [[ -z "$ECR_REPOSITORY" ]]; then
                 echo "ECR_REPOSITORY is not set. Exiting."
                 exit 1
             fi
 
-            docker pull "\$IMAGE_URI"
+            docker pull "$IMAGE_URI"
 
             # Run the container (replace the port and options as needed)
-            docker run -d -p 80:80 --name nginx-container "\$IMAGE_URI"
+            docker run -d -p 80:80 --name nginx-container "$IMAGE_URI"
           EOF
