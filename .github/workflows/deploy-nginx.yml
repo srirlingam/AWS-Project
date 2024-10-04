@@ -1,11 +1,15 @@
 name: Build and Deploy Nginx
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       instance_id:
         description: "EC2 instance ID"
         required: true
+        default: "i-0123456789abcdef0"
       ecr_repository:
         description: "ECR repository name"
         required: true
@@ -14,6 +18,10 @@ on:
         description: "AWS Region"
         required: true
         default: "us-east-1"
+      aws_account_id:
+        description: "AWS Account ID"
+        required: true
+        default: "183295438329"
 
 jobs:
   build:
@@ -51,6 +59,7 @@ jobs:
           AWS_REGION: ${{ github.event.inputs.aws_region }}
           ECR_REPOSITORY: ${{ github.event.inputs.ecr_repository }}
           EC2_INSTANCE_ID: ${{ github.event.inputs.instance_id }}
+          AWS_ACCOUNT_ID: ${{ github.event.inputs.aws_account_id }}
         run: |
           # Get the public IP of the EC2 instance
           EC2_PUBLIC_IP=$(aws ec2 describe-instances \
