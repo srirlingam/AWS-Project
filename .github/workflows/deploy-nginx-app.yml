@@ -120,6 +120,9 @@ jobs:
                 exit 1
             fi
 
+            docker stop nginx-container
+            docker rm nginx-container
+
             docker pull "$IMAGE_URI"
 
             # Run the container (replace the port and options as needed)
