@@ -1,9 +1,6 @@
 name: Build and Deploy Nginx
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       instance_id:
@@ -21,7 +18,7 @@ on:
       aws_account_id:
         description: "AWS Account ID"
         required: true
-        default: "183295438329"
+        default: "123456789012"
 
 jobs:
   build:
@@ -35,6 +32,8 @@ jobs:
 
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: ${{ github.event.inputs.aws_region }}
 
       - name: Build and push Docker image
         run: |
