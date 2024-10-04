@@ -115,4 +115,4 @@ jobs:
 
             # Run the container (replace the port and options as needed)
             docker run -d -p 80:80 --name nginx-container "\$IMAGE_URI"
-EOF
+            EOF
