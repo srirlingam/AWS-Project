@@ -33,7 +33,7 @@ jobs:
       - name: Configure AWS Credentials 
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: us-east-1
+          aws-region: ${{ github.event.inputs.aws_region }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -41,11 +41,10 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - uses: actions/checkout@v4 
       - name: Build and push Docker image
         env:
-            REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            REPOSITORY: ${{ github.event.inputs.ecr_repository }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ github.event.inputs.ecr_repository }}
         run: |
           docker build -t $REGISTRY/${{ github.event.inputs.ecr_repository }} .
           docker tag $REGISTRY/${{ github.event.inputs.ecr_repository }}:latest $REGISTRY/${{ github.event.inputs.ecr_repository }}:latest
@@ -77,27 +76,23 @@ jobs:
             --output text)
 
           # Connect to EC2 and install Docker if needed
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem ec2-user@$EC2_PUBLIC_IP \
-            AWS_REGION="${{ github.event.inputs.aws_region }}" \
-            AWS_ACCOUNT_ID="${{ github.event.inputs.aws_account_id }}" \
-            ECR_REPOSITORY="${{ github.event.inputs.ecr_repository }}" \
-            bash -s << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem ec2-user@$EC2_PUBLIC_IP << EOF
+            # Set environment variables
+            export AWS_REGION="${{ github.event.inputs.aws_region }}"
+            export AWS_ACCOUNT_ID="${{ github.event.inputs.aws_account_id }}"
+            export ECR_REPOSITORY="${{ github.event.inputs.ecr_repository }}"
+
             # Install Docker if it's not installed
             if ! command -v docker &> /dev/null
             then
+                echo "Docker is not installed. Installing Docker..."
                 sudo dnf update -y
                 sudo dnf install -y docker
                 sudo systemctl start docker
                 sudo usermod -aG docker ec2-user
                 sudo systemctl enable docker
             else
-              echo "Docker is already installed."
-            fi
-
-            # Log in to ECR
-            if [[ -z "$AWS_REGION" || -z "$AWS_ACCOUNT_ID" ]]; then
-                echo "AWS_REGION or AWS_ACCOUNT_ID is not set. Exiting."
-                exit 1
+                echo "Docker is already installed."
             fi
 
             # Ensure that the AWS CLI is configured
@@ -106,18 +101,18 @@ jobs:
                 exit 1
             fi
 
-            aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+            # Log in to ECR
+            aws ecr get-login-password --region "\$AWS_REGION" | docker login --username AWS --password-stdin "\$AWS_ACCOUNT_ID.dkr.ecr.\$AWS_REGION.amazonaws.com"
 
             # Pull the latest Docker image
-            IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest"
-            if [[ -z "$ECR_REPOSITORY" ]]; then
+            IMAGE_URI="\$AWS_ACCOUNT_ID.dkr.ecr.\$AWS_REGION.amazonaws.com/\$ECR_REPOSITORY:latest"
+            if [[ -z "\$ECR_REPOSITORY" ]]; then
                 echo "ECR_REPOSITORY is not set. Exiting."
                 exit 1
             fi
 
-            docker pull "$IMAGE_URI"
+            docker pull "\$IMAGE_URI"
 
             # Run the container (replace the port and options as needed)
-            docker run -d -p 80:80 --name nginx-container "$IMAGE_URI"
-            EOF
-
+            docker run -d -p 80:80 --name nginx-container "\$IMAGE_URI"
+EOF
