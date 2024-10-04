@@ -47,8 +47,8 @@ jobs:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             REPOSITORY: ${{ github.event.inputs.ecr_repository }}
         run: |
-          docker build -t ${{ github.event.inputs.ecr_repository }} .
-          docker tag ${{ github.event.inputs.ecr_repository }}:latest ${{ github.event.inputs.ecr_repository }}:latest
+          docker build -t $REGISTRY/${{ github.event.inputs.ecr_repository }} .
+          docker tag $REGISTRY/${{ github.event.inputs.ecr_repository }}:latest $REGISTRY/${{ github.event.inputs.ecr_repository }}:latest
           docker push $REGISTRY/${{ github.event.inputs.ecr_repository }}:latest
 
   deploy:
