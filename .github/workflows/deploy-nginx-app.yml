@@ -106,11 +106,8 @@ jobs:
                 sudo dnf install -y docker
                 echo "add docker ec2-user to docker group"
                 sudo usermod -aG docker ec2-user
+                #newgrp docker to sync ec2-user to docker group
                 newgrp docker
-                echo "enable and start docker"
-                sudo systemctl enable docker --now
-                echo "Waiting for Docker to start..."
-                sleep 5
             else
                 echo "Docker is already installed."
             fi
