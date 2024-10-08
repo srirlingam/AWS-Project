@@ -118,6 +118,7 @@ resource "aws_instance" "web" {
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
+              yum install telnet -y
             EOF
 }
 
