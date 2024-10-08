@@ -60,7 +60,7 @@ jobs:
     needs: build
     steps:
       - name: Wait for approval
-        uses: ekeel/approval-action@v1.0.3
+        uses: ekeel/approval-action@v1.0.2
         with:
           token: ${{ secrets.GH_PAT }}
           issueTitle: 'Approval REQUIRED'
