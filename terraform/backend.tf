@@ -1,3 +1,4 @@
+# terraform statefile to be saved on a S3 bucket
 terraform {
   backend "s3" {
     bucket         = "aws-project-statefile"  
