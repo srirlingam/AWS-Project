@@ -1,4 +1,4 @@
-# Use the official Nginx image
+# Use the official Latest Nginx image
 FROM nginx:latest
 
 # Copy the hello world HTML page
