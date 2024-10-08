@@ -52,9 +52,11 @@ jobs:
     needs: build
     steps:
       - name: Wait for approval
-        uses: manosim/github-action-wait-for-approval@v1
+        uses: ekeel/approval-action@v1.0.0
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
+          issueTitle: 'Approval REQUIRED'
+          issueBody: 'Please Approve before deployment can take place'
           approvers: 'srirlingam'
 
   deploy:
