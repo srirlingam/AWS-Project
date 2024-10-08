@@ -151,6 +151,6 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_ecr_repository" "main" {
   name = var.ecr_repo_name
   image_tag_mutability = "MUTABLE"
-
+  force_delete = true
   tags = merge(var.tags, { Name = "enterprise-ecr" })
 }
