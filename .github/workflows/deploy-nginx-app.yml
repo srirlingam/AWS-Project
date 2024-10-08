@@ -1,5 +1,13 @@
 name: Build & Deploy Nginx
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: write
+  deployments: write
+  repository-projects: write
+
 on:
   workflow_dispatch:
     inputs:
