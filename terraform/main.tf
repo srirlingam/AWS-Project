@@ -138,6 +138,7 @@ resource "aws_db_instance" "rds" {
   publicly_accessible  = false
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
   db_subnet_group_name = aws_db_subnet_group.main.id
+  skip_final_snapshot = true # This is to make sure the RDS Instance can be deleted when Terraform Destroy command is run
 
   tags = merge(var.tags, { Name = "rds-mysql" })
 }
