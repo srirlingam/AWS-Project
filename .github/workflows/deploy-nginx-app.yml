@@ -107,16 +107,20 @@ jobs:
                 echo "add docker ec2-user to docker group"
                 sudo usermod -aG docker ec2-user
                 newgrp docker
-                echo "start docker"
-                sudo systemctl start docker
-                echo "enable docker"
-                sudo systemctl enable docker
+                echo "enable and start docker"
+                sudo systemctl enable docker --now
+                echo "Waiting for Docker to start..."
+                sleep 5
             else
-                echo "add docker ec2-user to docker group"
-                sudo usermod -aG docker ec2-user
-                sudo systemctl start docker
-                sudo systemctl enable docker
                 echo "Docker is already installed."
+            fi
+
+            # Check if Docker is running
+            if ! sudo systemctl is-active --quiet docker; then
+                echo "Docker is not running. Starting Docker..."
+                sudo systemctl enable docker --now
+                echo "Waiting for Docker to start..."
+                sleep 5
             fi
 
             # Ensure that the AWS CLI is configured
@@ -124,7 +128,8 @@ jobs:
                 echo "AWS CLI is not installed. Exiting."
                 exit 1
             fi
-
+            
+            # Stop any existing container
             if [ "$(docker ps -q -f name=nginx-container)" ]; then
                 docker stop nginx-container
                 docker rm nginx-container
@@ -142,9 +147,6 @@ jobs:
                 echo "ECR_REPOSITORY is not set. Exiting."
                 exit 1
             fi
-
-            docker stop nginx-container
-            docker rm nginx-container
 
             docker pull "$IMAGE_URI"
 
