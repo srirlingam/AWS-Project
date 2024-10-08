@@ -52,11 +52,10 @@ jobs:
     needs: build
     steps:
       - name: Wait for approval
-        uses: reviewdog/action-wait-for-approval@v1
+        uses: manosim/github-action-wait-for-approval@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          approval: true
-          message: "Please approve the deployment."
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          approvers: 'srirlingam'
 
   deploy:
     runs-on: ubuntu-latest
