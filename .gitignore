@@ -1,4 +1,4 @@
-# Local .terraform directories
+# Local .terraform directories will be ignored on git push
 .terraform.lock.hcl
 */.terraform/*
 
