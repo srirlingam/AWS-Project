@@ -89,6 +89,7 @@ jobs:
                 sudo dnf install -y docker
                 echo "add docker ec2-user to docker group"
                 sudo usermod -aG docker ec2-user
+                newgrp docker
                 echo "start docker"
                 sudo systemctl start docker
                 echo "enable docker"
