@@ -54,18 +54,14 @@ jobs:
           docker tag $REGISTRY/${{ github.event.inputs.ecr_repository }}:latest $REGISTRY/${{ github.event.inputs.ecr_repository }}:latest
           docker push $REGISTRY/${{ github.event.inputs.ecr_repository }}:latest
 
-
   approval:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Wait for approval
-        uses: ekeel/approval-action@v1.0.2
-        with:
-          token: ${{ secrets.GH_PAT }}
-          issueTitle: 'Approval REQUIRED'
-          issueBody: 'Please Approve before deployment can take place'
-          approvers: 'srirlingam'
+      - name: Request approval for deployment
+        run: echo "Waiting for approval to proceed with deployment..."
+    environment:
+      name: production
 
   deploy:
     runs-on: ubuntu-latest
